@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="org.schoolsfirstfcu.mobile.plugin.checkcapture"
+        version="0.0.1"
+        xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>MBPCheckCapture</name>
+    <description>eDeposit check capture plugin</description>
+    <engines>
+        <engine name="cordova" version=">=3.1.0" />
+    </engines>
+    
+    <js-module name="CheckCapture" src="www/Camera.js">
+        <clobbers target="navigator.checkcapture" />
+    </js-module>
+    
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="CheckCapture">
+                <param name="android-package" value="org.schoolsfirstfcu.mobile.plugin.checkcapture.Camera" />
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.CAMERA" />
+            
+            <uses-feature android:name="android.hardware.camera" android:required="true" />
+            <uses-feature android:name="android.hardware.camera.autofocus" android:required="true" />
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application" >
+            <activity android:configChanges="orientation" android:name=".plugin.checkcapture.CameraActivity" android:screenOrientation="portrait" />
+        </config-file>
+        
+        <source-file src="src/android/Camera.java" target-dir="src/org/schoolsfirstfcu/mobile/plugin/checkcapture" />
+        <source-file src="src/android/CameraActivity.java" target-dir="src/org/schoolsfirstfcu/mobile/plugin/checkcapture" />
+        <source-file src="src/android/CameraPreview.java" target-dir="src/org/schoolsfirstfcu/mobile/plugin/checkcapture" />
+    </platform>
+    
+    <platform name="ios">
+       <config-file target="config.xml" parent="/*">
+            <feature name="CheckCapture">
+                <param name="ios-package" value="MBPCamera" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/MBPCamera.h" />
+        <source-file src="src/ios/MBPCamera.m" />
+        <header-file src="src/ios/MBPCameraViewController.h" />
+        <source-file src="src/ios/MBPCameraViewController.m" />
+ 	    <framework src="ImageIO.framework" weak="true" />
+ 	    <framework src="CoreLocation.framework" />
+ 	    <framework src="CoreGraphics.framework" />
+ 	    <framework src="AssetsLibrary.framework" />
+        <framework src="MobileCoreServices.framework" />
+    </platform>
+</plugin>

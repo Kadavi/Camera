@@ -1,0 +1,14 @@
+{
+    "version": "0.0.1",
+    "name": "org.schoolsfirstfcu.mobile.plugin.checkcapture",
+    "cordova_name": "CheckCapture",
+    "description": "eDeposit Check Capture Plugin",
+    "keywords": [
+        "cordova",
+        "camera"
+    ],
+    "platforms": [
+        "android"
+    ],
+    "engines": [],
+}
