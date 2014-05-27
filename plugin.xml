@@ -51,5 +51,6 @@
  	    <framework src="AssetsLibrary.framework" />
         <framework src="MobileCoreServices.framework" />
     </platform>
-    <asset src="www/img" target="img" />
+    <asset src="www/img/cancelup.png" target="img/cancelup.png" />
+    <asset src="www/img/canceldown.png" target="img/canceldown.png" />
 </plugin>
