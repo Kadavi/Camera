@@ -51,4 +51,5 @@
  	    <framework src="AssetsLibrary.framework" />
         <framework src="MobileCoreServices.framework" />
     </platform>
+    <asset src="www/img" target="img" />
 </plugin>
