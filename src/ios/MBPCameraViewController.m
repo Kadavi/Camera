@@ -22,10 +22,6 @@
     UIButton *_backButton;
     UIColor *_headerPanelColor;
     UIColor *_framePanelColor;
-    //UIImageView *_topLeftGuide;
-    //UIImageView *_topRightGuide;
-    //UIImageView *_bottomLeftGuide;
-    //UIImageView *_bottomRightGuide;
     UIActivityIndicatorView *_activityIndicator;
 }
 static const CGFloat kHeaderHeightPhone = 56;
@@ -125,53 +121,16 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [_captureButton setTitle:@"Take Picture" forState:UIControlStateNormal];
     [_captureButton setBackgroundImage:[UIImage imageNamed:@"www/img/cancelup.png"] forState:UIControlStateNormal];
     [_captureButton setBackgroundImage:[UIImage imageNamed:@"www/img/canceldown.png"] forState:UIControlStateHighlighted];
-    //[_captureButton setImage:[self imageWithColor:[UIColor colorWithWhite:0.2f alpha:1.0f] forState:UIControlStateNormal];
-    //[_captureButton setImage:[self imageWithColor:[UIColor colorWithWhite:0.9f alpha:1.0f] forState:UIControlStateHighlighted];
     [_captureButton addTarget:self action:@selector(takePictureWaitingForCameraToFocus) forControlEvents:UIControlEventTouchUpInside];
     
-    //[_captureButton setImage:[UIImage imageNamed:@"www/img/cameraoverlay/capture_button.png"] forState:UIControlStateNormal];
-    //[_captureButton setImage:[UIImage imageNamed:@"www/img/cameraoverlay/capture_button_pressed.png"] forState:UIControlStateHighlighted];
-    //[_captureButton addTarget:self action:@selector(takePictureWaitingForCameraToFocus) forControlEvents:UIControlEventTouchUpInside];
     [overlay addSubview:_captureButton];
-    
     
     _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [_cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
     [_cancelButton setBackgroundColor:[UIColor colorWithWhite:0.0f alpha:0.0f]];
-    //[_captureButton setImage:[UIImage imageNamed:@"www/img/cameraoverlay/capture_button.png"] forState:UIControlStateNormal];
-    //[_captureButton setImage:[UIImage imageNamed:@"www/img/cameraoverlay/capture_button_pressed.png"] forState:UIControlStateHighlighted];
-    //[_cancelButton setImage:[self imageWithColor: [UIColor colorWithWhite:0.2f alpha:1.0f]] forState:UIControlStateNormal];
-    //[_cancelButton setImage:[self imageWithColor: [UIColor colorWithWhite:0.9f alpha:1.0f]] forState:UIControlStateHighlighted];
     [_cancelButton addTarget:self action:@selector(cancelTakePicture) forControlEvents:UIControlEventTouchUpInside];
     
-    //[_captureButton setImage:[UIImage imageNamed:@"www/img/cameraoverlay/capture_button.png"] forState:UIControlStateNormal];
-    //[_captureButton setImage:[UIImage imageNamed:@"www/img/cameraoverlay/capture_button_pressed.png"] forState:UIControlStateHighlighted];
-    //[_captureButton addTarget:self action:@selector(takePictureWaitingForCameraToFocus) forControlEvents:UIControlEventTouchUpInside];
     [overlay addSubview:_cancelButton];
-    
-    
-    /*_backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-     [_backButton setBackgroundImage:[UIImage imageNamed:@"www/img/cameraoverlay/back_button.png"] forState:UIControlStateNormal];
-     [_backButton setBackgroundImage:[UIImage imageNamed:@"www/img/cameraoverlay/back_button_pressed.png"] forState:UIControlStateHighlighted];
-     [_backButton setTitle:@"Cancel" forState:UIControlStateNormal];
-     [_backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-     [[_backButton titleLabel] setFont:[UIFont systemFontOfSize:18]];
-     [_backButton addTarget:self action:@selector(dismissCameraPreview) forControlEvents:UIControlEventTouchUpInside];
-     [overlay addSubview:_backButton];
-     
-     
-     _topLeftGuide = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"www/img/cameraoverlay/border_top_left.png"]];
-     [overlay addSubview:_topLeftGuide];
-     
-     _topRightGuide = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"www/img/cameraoverlay/border_top_right.png"]];
-     [overlay addSubview:_topRightGuide];
-     
-     _bottomLeftGuide = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"www/img/cameraoverlay/border_bottom_left.png"]];
-     [overlay addSubview:_bottomLeftGuide];
-     
-     _bottomRightGuide = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"www/img/cameraoverlay/border_bottom_right.png"]];
-     [overlay addSubview:_bottomRightGuide];
-     */
     
     return overlay;
 }
@@ -237,118 +196,125 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
     
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
-    /*
-     _backButton.frame = CGRectMake((CGRectGetMinX(_captureButton.frame) - kBackButtonWidthPhone) / 2,
-     CGRectGetMinY(_captureButton.frame) + ((kCaptureButtonHeightPhone - kBackButtonHeightPhone) / 2),
-     kBackButtonWidthPhone,
-     kBackButtonHeightPhone);
-     */
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
-    
-    CGFloat screenAspectRatio = bounds.size.height / bounds.size.width;
-    if (screenAspectRatio <= 1.5f) {
-        [self layoutForPhoneWithShortScreen];
-    } else {
-        [self layoutForPhoneWithTallScreen];
-    }
 }
 
 - (void)layoutForPhoneWithShortScreen {
-    /*
-     CGRect bounds = [[UIScreen mainScreen] bounds];
-     CGFloat verticalInset = 5;
-     CGFloat height = CGRectGetMinY(_buttonPanel.frame) - (verticalInset * 2);
-     CGFloat width = height / kAspectRatio;
-     CGFloat horizontalInset = (bounds.size.width - width) / 2;
-     
-     
-     _topLeftGuide.frame = CGRectMake(horizontalInset,
-     verticalInset,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     
-     _topRightGuide.frame = CGRectMake(bounds.size.width - kBorderImageWidthPhone - horizontalInset,
-     verticalInset,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     
-     _bottomLeftGuide.frame = CGRectMake(CGRectGetMinX(_topLeftGuide.frame),
-     CGRectGetMinY(_topLeftGuide.frame) + height - kBorderImageHeightPhone,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     
-     _bottomRightGuide.frame = CGRectMake(CGRectGetMinX(_topRightGuide.frame),
-     CGRectGetMinY(_topRightGuide.frame) + height - kBorderImageHeightPhone,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     */
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    
+    NSInteger height = bounds.size.height;
+    NSInteger width = bounds.size.width - kHeaderHeightPhone;
+    NSInteger logoSizeW = _logoPanel.image.size.width;
+    NSInteger logoSizeH =_logoPanel.image.size.height;
+    
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
+                                      kCaptureButtonWidthPhone,
+                                      kCaptureButtonHeightPhone);
+    _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
+    
+    _cancelButton.frame = CGRectMake(-20,
+                                     bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
+                                     kCaptureButtonWidthPhone - 5,
+                                     kCaptureButtonHeightPhone);
+    _cancelButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
+    
+    _buttonPanel.frame = CGRectMake(0,
+                                    CGRectGetMinY(_captureButton.frame) - kCaptureButtonVerticalInsetPhone,
+                                    bounds.size.width - kHeaderHeightPhone,
+                                    kCaptureButtonHeightPhone + (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
+    
+    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    
+    _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
+    
+    _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
+    
+    _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
+    
+    previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)layoutForPhoneWithTallScreen {
-    /*
-     CGRect bounds = [[UIScreen mainScreen] bounds];
-     
-     _topLeftGuide.frame = CGRectMake(kHorizontalInsetPhone, kVerticalInsetPhone, kBorderImageWidthPhone, kBorderImageHeightPhone);
-     
-     _topRightGuide.frame = CGRectMake(bounds.size.width - kBorderImageWidthPhone - kHorizontalInsetPhone,
-     kVerticalInsetPhone,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     
-     CGFloat height = (CGRectGetMaxX(_topRightGuide.frame) - CGRectGetMinX(_topLeftGuide.frame)) * kAspectRatio;
-     
-     _bottomLeftGuide.frame = CGRectMake(CGRectGetMinX(_topLeftGuide.frame),
-     CGRectGetMinY(_topLeftGuide.frame) + height - kBorderImageHeightPhone,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     
-     _bottomRightGuide.frame = CGRectMake(CGRectGetMinX(_topRightGuide.frame),
-     CGRectGetMinY(_topRightGuide.frame) + height - kBorderImageHeightPhone,
-     kBorderImageWidthPhone,
-     kBorderImageHeightPhone);
-     */
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    
+    NSInteger height = bounds.size.height;
+    NSInteger width = bounds.size.width - kHeaderHeightPhone;
+    NSInteger logoSizeW = _logoPanel.image.size.width;
+    NSInteger logoSizeH =_logoPanel.image.size.height;
+    
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
+                                      kCaptureButtonWidthPhone,
+                                      kCaptureButtonHeightPhone);
+    _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
+    
+    _cancelButton.frame = CGRectMake(-20,
+                                     bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
+                                     kCaptureButtonWidthPhone - 5,
+                                     kCaptureButtonHeightPhone);
+    _cancelButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
+    
+    _buttonPanel.frame = CGRectMake(0,
+                                    CGRectGetMinY(_captureButton.frame) - kCaptureButtonVerticalInsetPhone,
+                                    bounds.size.width - kHeaderHeightPhone,
+                                    kCaptureButtonHeightPhone + (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
+    
+    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    
+    _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
+    
+    _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
+    
+    _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
+    
+    previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)layoutForTablet {
     CGRect bounds = [[UIScreen mainScreen] bounds];
     
-    _captureButton.frame = CGRectMake((bounds.size.width / 2) - (kCaptureButtonWidthTablet / 2),
-                                      bounds.size.height - kCaptureButtonHeightTablet - kCaptureButtonVerticalInsetTablet,
-                                      kCaptureButtonWidthTablet,
-                                      kCaptureButtonHeightTablet);
-    /*
-     _backButton.frame = CGRectMake((CGRectGetMinX(_captureButton.frame) - kBackButtonWidthTablet) / 2,
-     CGRectGetMinY(_captureButton.frame) + ((kCaptureButtonHeightTablet - kBackButtonHeightTablet) / 2),
-     kBackButtonWidthTablet,
-     kBackButtonHeightTablet);
-     
-     */
-    _buttonPanel.frame = CGRectMake(0,
-                                    CGRectGetMinY(_captureButton.frame) - kCaptureButtonVerticalInsetTablet,
-                                    bounds.size.width,
-                                    kCaptureButtonHeightTablet + (kCaptureButtonVerticalInsetTablet * 2));
+    NSInteger height = bounds.size.height;
+    NSInteger width = bounds.size.width - kHeaderHeightPhone;
+    NSInteger logoSizeW = _logoPanel.image.size.width;
+    NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    /*
-     _topLeftGuide.frame = CGRectMake(kHorizontalInsetTablet, kVerticalInsetTablet, kBorderImageWidthTablet, kBorderImageHeightTablet);
-     
-     _topRightGuide.frame = CGRectMake(bounds.size.width - kBorderImageWidthTablet - kHorizontalInsetTablet,
-     kVerticalInsetTablet,
-     kBorderImageWidthTablet,
-     kBorderImageHeightTablet);
-     
-     CGFloat height = (CGRectGetMaxX(_topRightGuide.frame) - CGRectGetMinX(_topLeftGuide.frame)) * kAspectRatio;
-     
-     _bottomLeftGuide.frame = CGRectMake(CGRectGetMinX(_topLeftGuide.frame),
-     CGRectGetMinY(_topLeftGuide.frame) + height - kBorderImageHeightTablet,
-     kBorderImageWidthTablet,
-     kBorderImageHeightTablet);
-     
-     _bottomRightGuide.frame = CGRectMake(CGRectGetMinX(_topRightGuide.frame),
-     CGRectGetMinY(_topRightGuide.frame) + height - kBorderImageHeightTablet,
-     kBorderImageWidthTablet,
-     kBorderImageHeightTablet);
-     */
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
+                                      kCaptureButtonWidthPhone,
+                                      kCaptureButtonHeightPhone);
+    _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
+    
+    _cancelButton.frame = CGRectMake(-20,
+                                     bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
+                                     kCaptureButtonWidthPhone - 5,
+                                     kCaptureButtonHeightPhone);
+    _cancelButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
+    
+    _buttonPanel.frame = CGRectMake(0,
+                                    CGRectGetMinY(_captureButton.frame) - kCaptureButtonVerticalInsetPhone,
+                                    bounds.size.width - kHeaderHeightPhone,
+                                    kCaptureButtonHeightPhone + (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
+    
+    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    
+    _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
+    
+    _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
+    
+    _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
+    
+    previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)viewDidLoad {
