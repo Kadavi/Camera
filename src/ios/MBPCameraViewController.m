@@ -169,8 +169,8 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [cropMarkLayer setBounds:overlay.bounds];
     [cropMarkLayer setPosition:overlay.center];
     [cropMarkLayer setFillColor:[[UIColor clearColor] CGColor]];
-    [cropMarkLayer setStrokeColor:[[UIColor blackColor] CGColor]];
-    [cropMarkLayer setLineWidth:1.0f];
+    [cropMarkLayer setStrokeColor:[[UIColor whiteColor] CGColor]];
+    [cropMarkLayer setLineWidth:2.0f];
     [cropMarkLayer setLineJoin:kCALineJoinBevel];
     [cropMarkLayer setLineDashPattern:
     [NSArray arrayWithObjects:[NSNumber numberWithInt:10], [NSNumber numberWithInt:5],nil]];
@@ -255,13 +255,15 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+    CGFloat textPadding = 10;
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-20,
+    _cancelButton.frame = CGRectMake(-textPadding,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -283,8 +285,6 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
-    
-    
 }
 
 - (void)layoutForPhoneWithTallScreen {
@@ -295,13 +295,15 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+    CGFloat textPadding = 10;
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-20,
+    _cancelButton.frame = CGRectMake(-textPadding,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -333,13 +335,15 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+    CGFloat textPadding = 10;
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-20,
+    _cancelButton.frame = CGRectMake(-textPadding,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
