@@ -169,7 +169,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [cropMarkLayer setBounds:overlay.bounds];
     [cropMarkLayer setPosition:overlay.center];
     [cropMarkLayer setFillColor:[[UIColor clearColor] CGColor]];
-    [cropMarkLayer setStrokeColor:[[UIColor whiteColor] CGColor]];
+    [cropMarkLayer setStrokeColor:[[UIColor blackColor] CGColor]];
     [cropMarkLayer setLineWidth:1.0f];
     [cropMarkLayer setLineJoin:kCALineJoinBevel];
     [cropMarkLayer setLineDashPattern:
@@ -255,15 +255,13 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    CGFloat textPadding = 10;
-    
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-textPadding,
+    _cancelButton.frame = CGRectMake(-20,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -285,6 +283,8 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
+    
+    
 }
 
 - (void)layoutForPhoneWithTallScreen {
@@ -295,15 +295,13 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    CGFloat textPadding = 10;
-    
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-textPadding,
+    _cancelButton.frame = CGRectMake(-20,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -335,15 +333,13 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    CGFloat textPadding = 10;
-    
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-textPadding,
+    _cancelButton.frame = CGRectMake(-20,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -372,6 +368,13 @@ static const CGFloat kAspectRatio = 125.0f / 86;
         for (AVCaptureDevice *device in [AVCaptureDevice devices]) {
             if ([device hasMediaType:AVMediaTypeVideo] && [device position] == AVCaptureDevicePositionBack) {
                 _rearCamera = device;
+                if ([device hasTorch]) {
+                    [device lockForConfiguration:nil];
+                    if (device.hasFlash && [device isFlashModeSupported:AVCaptureFlashModeAuto]) {
+                        device.flashMode = AVCaptureFlashModeAuto;
+                    }
+                    [device unlockForConfiguration];
+                }
             }
         }
         AVCaptureDeviceInput *cameraInput = [AVCaptureDeviceInput deviceInputWithDevice:_rearCamera error:nil];
@@ -431,12 +434,12 @@ static const CGFloat kAspectRatio = 125.0f / 86;
 }
 
 - (void)takePicture {
-    [_activityIndicator startAnimating];
     AVCaptureConnection *videoConnection = [self videoConnectionToOutput:_stillImageOutput];
     [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler:^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
         _callback([UIImage imageWithData:imageData]);
     }];
+    [_activityIndicator startAnimating];
 }
 
 - (AVCaptureConnection*)videoConnectionToOutput:(AVCaptureOutput*)output {
