@@ -170,7 +170,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [cropMarkLayer setPosition:overlay.center];
     [cropMarkLayer setFillColor:[[UIColor clearColor] CGColor]];
     [cropMarkLayer setStrokeColor:[[UIColor whiteColor] CGColor]];
-    [cropMarkLayer setLineWidth:2.0f];
+    [cropMarkLayer setLineWidth:1.0f];
     [cropMarkLayer setLineJoin:kCALineJoinBevel];
     [cropMarkLayer setLineDashPattern:
     [NSArray arrayWithObjects:[NSNumber numberWithInt:10], [NSNumber numberWithInt:5],nil]];
