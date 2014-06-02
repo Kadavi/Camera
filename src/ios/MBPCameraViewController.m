@@ -25,6 +25,7 @@
     UIColor *_headerPanelColor;
     UIColor *_framePanelColor;
     UIActivityIndicatorView *_activityIndicator;
+    UIImageView *_previewImagePanel;
 }
 static const CGFloat kHeaderHeightPhone = 56;
 static const CGFloat kFrameBorderSizePhone = 20;
@@ -191,6 +192,10 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [_messagePanel setTextAlignment: NSTextAlignmentCenter];
     [overlay addSubview:_messagePanel];
     
+    // Preview Image Layer
+    _previewImagePanel = [[UIImageView alloc] initWithFrame:CGRectZero];
+    [overlay addSubview:_previewImagePanel];
+    
     return overlay;
 }
 
@@ -263,6 +268,8 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _previewImagePanel.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)layoutForPhoneWithShortScreen {
@@ -308,6 +315,8 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _previewImagePanel.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)layoutForPhoneWithTallScreen {
@@ -353,6 +362,8 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _previewImagePanel.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)layoutForTablet {
@@ -398,6 +409,8 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
+    
+    _previewImagePanel.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
 
 - (void)viewDidLoad {
@@ -474,7 +487,9 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     AVCaptureConnection *videoConnection = [self videoConnectionToOutput:_stillImageOutput];
     [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler:^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-        _callback([UIImage imageWithData:imageData]);
+        UIImage *image = [UIImage imageWithData:imageData];
+        [_previewImagePanel setImage:image];// Show a frozen still image laid over the original live preview rectangle
+        _callback(image);
     }];
     [_activityIndicator startAnimating];
 }
