@@ -485,10 +485,13 @@ static const CGFloat kAspectRatio = 125.0f / 86;
 
 - (void)takePicture {
     AVCaptureConnection *videoConnection = [self videoConnectionToOutput:_stillImageOutput];
+    
     [_stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler:^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
         UIImage *image = [UIImage imageWithData:imageData];
         [_previewImagePanel setImage:image];// Show a frozen still image laid over the original live preview rectangle
+        [_captureSession stopRunning];
+        [NSThread sleepForTimeInterval:1];
         _callback(image);
     }];
     [_activityIndicator startAnimating];
