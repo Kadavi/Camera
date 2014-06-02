@@ -273,13 +273,15 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+    CGFloat textPadding = 10;
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-20,
+    _cancelButton.frame = CGRectMake(-textPadding,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -292,7 +294,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     
     _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
     
-    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    //_logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
     
     _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
     
@@ -300,9 +302,12 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
     
+    CGSize labelSize = [_messagePanel.text sizeWithFont:_messagePanel.font
+                                      constrainedToSize:_messagePanel.frame.size
+                                          lineBreakMode:_messagePanel.lineBreakMode];
+    _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
+    
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
-    
-    
 }
 
 - (void)layoutForPhoneWithTallScreen {
@@ -313,13 +318,15 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+    CGFloat textPadding = 10;
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-20,
+    _cancelButton.frame = CGRectMake(-textPadding,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -332,13 +339,18 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     
     _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
     
-    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    //_logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
     
     _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
     
     _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
     
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
+    
+    CGSize labelSize = [_messagePanel.text sizeWithFont:_messagePanel.font
+                                      constrainedToSize:_messagePanel.frame.size
+                                          lineBreakMode:_messagePanel.lineBreakMode];
+    _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
@@ -351,13 +363,15 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     NSInteger logoSizeW = _logoPanel.image.size.width;
     NSInteger logoSizeH =_logoPanel.image.size.height;
     
-    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)),
+    CGFloat textPadding = 10;
+    
+    _captureButton.frame = CGRectMake((((width) / 2) - (kCaptureButtonWidthPhone / 2)) + textPadding,
                                       bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                       kCaptureButtonWidthPhone,
                                       kCaptureButtonHeightPhone);
     _captureButton.layer.cornerRadius = kCaptureButtonRadiusPhone;
     
-    _cancelButton.frame = CGRectMake(-20,
+    _cancelButton.frame = CGRectMake(-textPadding,
                                      bounds.size.height - kCaptureButtonHeightPhone - kCaptureButtonVerticalInsetPhone,
                                      kCaptureButtonWidthPhone - 5,
                                      kCaptureButtonHeightPhone);
@@ -370,13 +384,18 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     
     _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
     
-    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    //_logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
     
     _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
     
     _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
     
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
+    
+    CGSize labelSize = [_messagePanel.text sizeWithFont:_messagePanel.font
+                                      constrainedToSize:_messagePanel.frame.size
+                                          lineBreakMode:_messagePanel.lineBreakMode];
+    _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
