@@ -17,7 +17,7 @@
     CGFloat targetWidth = [[command argumentAtIndex:2] floatValue];
     CGFloat targetHeight = [[command argumentAtIndex:3] floatValue];
     NSString *logoFilename = [command argumentAtIndex: 4];
-    //NSString *description  = [command argumentAtIndex: 5];
+    NSString *description  = [command argumentAtIndex: 5];
     
     if (![UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceRear]) {
         // no rear camera detected
@@ -43,7 +43,7 @@
                                                         messageAsString: base64scaledImageData];
             [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
             [self.viewController dismissViewControllerAnimated:YES completion:nil];
-        } titleName:title logoFilename:logoFilename ];
+        } titleName:title logoFilename:logoFilename description:description ];
         [self.viewController presentViewController:cameraViewController animated:YES completion:nil];
     }
 }
