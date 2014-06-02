@@ -13,12 +13,14 @@
     UIView *_headerPanel;
     UIImageView *_logoPanel;
     UILabel *_titlePanel;
+    UILabel *_messagePanel;
     UIView *_topFramePanel;
     UIView *_leftFramePanel;
     UIButton *_captureButton;
     UIButton *_cancelButton;
     NSString *_logoFilename;
     NSString *_title;
+    NSString *_description;
     UIButton *_backButton;
     UIColor *_headerPanelColor;
     UIColor *_framePanelColor;
@@ -51,13 +53,14 @@ static const CGFloat kCaptureButtonVerticalInsetTablet = 20;
 
 static const CGFloat kAspectRatio = 125.0f / 86;
 
-- (id)initWithCallback:(void(^)(UIImage*))callback titleName:(NSString*)title_ logoFilename:(NSString*)logoFilename_ {
+- (id)initWithCallback:(void(^)(UIImage*))callback titleName:(NSString*)title_ logoFilename:(NSString*)logoFilename_ description:(NSString*)description_ {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
         _callback = callback;
         _captureSession = [[AVCaptureSession alloc] init];
         _captureSession.sessionPreset = AVCaptureSessionPresetPhoto;
         _title = title_;
+        _description = description_;
         _logoFilename = logoFilename_;
         _headerPanelColor = [UIColor colorWithRed: 45.0/255.0 green: 68.0/255.0 blue:82.0/255.0 alpha:1.0f];
         _framePanelColor = [UIColor colorWithRed: 185.0/255.0 green: 199.0/255.0 blue:212.0/255.0 alpha:150.0/255.0];
@@ -108,7 +111,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     _titlePanel = [[UILabel alloc] initWithFrame:CGRectZero];
     [_titlePanel setText:_title];
     [_titlePanel setFont:[UIFont boldSystemFontOfSize: kTitleFontSize]];
-    [_titlePanel setTextColor: [UIColor colorWithWhite: 1.0f alpha: 1.0f ]];
+    [_titlePanel setTextColor: [UIColor colorWithWhite: 0.0f alpha: 1.0f ]];
     [_titlePanel setTransform: CGAffineTransformMakeRotation(90 * M_PI / 180)];
     [_titlePanel setBackgroundColor: _framePanelColor];
     [overlay addSubview:_titlePanel];
@@ -143,7 +146,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     
     CGMutablePathRef cropMarkPath = CGPathCreateMutable();
     
-    CGFloat borderLineLength = 30;
+    CGFloat borderLineLength = 20;
     
     // Top left corner marks
 	CGPathMoveToPoint(cropMarkPath, NULL, topLeftPts.x, topLeftPts.y + borderLineLength);
@@ -169,7 +172,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [cropMarkLayer setBounds:overlay.bounds];
     [cropMarkLayer setPosition:overlay.center];
     [cropMarkLayer setFillColor:[[UIColor clearColor] CGColor]];
-    [cropMarkLayer setStrokeColor:[[UIColor blackColor] CGColor]];
+    [cropMarkLayer setStrokeColor:[[UIColor whiteColor] CGColor]];
     [cropMarkLayer setLineWidth:1.0f];
     [cropMarkLayer setLineJoin:kCALineJoinBevel];
     [cropMarkLayer setLineDashPattern:
@@ -177,6 +180,16 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     [cropMarkLayer setPath:cropMarkPath];
     CGPathRelease(cropMarkPath);
     [[overlay layer] addSublayer:cropMarkLayer];
+    
+    _messagePanel = [[UILabel alloc] initWithFrame:CGRectZero];
+    [_messagePanel setNumberOfLines:0];
+    [_messagePanel setLineBreakMode:NSLineBreakByWordWrapping];
+    [_messagePanel setText:_description]; // input 2 vals
+    [_messagePanel setFont:[UIFont boldSystemFontOfSize: kTitleFontSize]];
+    [_messagePanel setTextColor: [UIColor colorWithWhite: 1.0f alpha: 1.0f ]];
+    [_messagePanel setTransform: CGAffineTransformMakeRotation(90 * M_PI / 180)];
+    [_messagePanel setTextAlignment: NSTextAlignmentCenter];
+    [overlay addSubview:_messagePanel];
     
     return overlay;
 }
@@ -236,13 +249,18 @@ static const CGFloat kAspectRatio = 125.0f / 86;
     
     _headerPanel.frame = CGRectMake(width, 0, kHeaderHeightPhone, height);
     
-    _logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
+    //_logoPanel.frame = CGRectMake((kHeaderHeightPhone - logoSizeH)/ 2, (height - logoSizeW) / 2 , logoSizeH, logoSizeW);
     
     _topFramePanel.frame = CGRectMake(0, 0, width, kFrameBorderSizePhone);
     
     _leftFramePanel.frame = CGRectMake(0, kFrameBorderSizePhone, kFrameBorderSizePhone, height - kFrameBorderSizePhone  - _buttonPanel.frame.size.height);
     
     _titlePanel.frame = CGRectMake(width - kFrameBorderSizePhone, kFrameBorderSizePhone, kFrameBorderSizePhone, height -kFrameBorderSizePhone - _buttonPanel.frame.size.height);
+    
+    CGSize labelSize = [_messagePanel.text sizeWithFont:_messagePanel.font
+                              constrainedToSize:_messagePanel.frame.size
+                                  lineBreakMode:_messagePanel.lineBreakMode];
+    _messagePanel.frame = CGRectMake(width, 0, labelSize.height * 3.5, height);
     
     previewLayer.frame = CGRectMake(kFrameBorderSizePhone, kFrameBorderSizePhone, width - (kFrameBorderSizePhone * 2), height - kFrameBorderSizePhone - kCaptureButtonHeightPhone - (kCaptureButtonVerticalInsetPhone * 2));
 }
