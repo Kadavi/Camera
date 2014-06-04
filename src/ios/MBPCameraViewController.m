@@ -445,7 +445,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -492,6 +492,7 @@ static const CGFloat kAspectRatio = 125.0f / 86;
         [_previewImagePanel setImage:image];// Show a frozen still image laid over the original live preview rectangle
         [_captureSession stopRunning];
         [NSThread sleepForTimeInterval:1];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES animated:NO];
         _callback(image);
     }];
     [_activityIndicator startAnimating];
