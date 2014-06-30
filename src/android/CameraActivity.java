@@ -1,37 +1,31 @@
 package org.schoolsfirstfcu.mobile.plugin.checkcapture;
 
-import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
-import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
-import static android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.RectF;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -40,9 +34,18 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.apache.cordova.LOG;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.List;
+
+import static android.hardware.Camera.Parameters.FLASH_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 public class CameraActivity extends Activity {
@@ -59,16 +62,20 @@ public class CameraActivity extends Activity {
 	public static String ERROR_MESSAGE = "ErrorMessage";
 	public static int RESULT_ERROR = 2;
 
-	private static final int HEADER_HEIGHT = 56;
-	private static final int FRAME_BORDER_SIZE = 28;
+	private static final int HEADER_HEIGHT = 54;
+	private static final int FRAME_BORDER_SIZE = 34;
 
 	private Camera camera;
 	private RelativeLayout layout;
 	private FrameLayout cameraPreviewView;
-	private ImageView logo;
+	private ImageView spinner;
+    private TextView headerText;
+    private TextView titleText;
+    private TextView cancelText;
+    private TextView captureText;
 	private ImageButton captureButton;
-	private Bitmap darkPictureButton;
-	private Bitmap lightPictureButton;
+    private ProgressDialog progress;
+	private Bitmap lightButton, darkButton;
 
 	@Override
 	protected void onResume() {
@@ -92,7 +99,7 @@ public class CameraActivity extends Activity {
 		} else if (supportedFocusModes.contains(FOCUS_MODE_AUTO)) {
 			cameraSettings.setFocusMode(FOCUS_MODE_AUTO);
 		}
-		cameraSettings.setFlashMode(FLASH_MODE_OFF);
+		cameraSettings.setFlashMode(FLASH_MODE_AUTO);
 		camera.setParameters(cameraSettings);
 	}
 
@@ -124,165 +131,278 @@ public class CameraActivity extends Activity {
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		layout.setLayoutParams(layoutParams);
+
 		createCameraPreview();
-		createBackground();
-		darkPictureButton = createCustomButton(true);
-		lightPictureButton = createCustomButton(false);
-		createCaptureButton(lightPictureButton);
-		setContentView(layout);
+        createFrame();
+        createCaptureButton();
+
+        setContentView(layout);
 	}
 
-	private Bitmap createCustomButton(boolean isDark) {
-		int width = pixelsToDp(70);
-		int height = pixelsToDp(40);
-		Bitmap bitmap = Bitmap.createBitmap(width, height,
-				Bitmap.Config.ARGB_8888);
+    private void createCameraPreview() {
+        cameraPreviewView = new FrameLayout(this);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT) - (pixelsToDp(FRAME_BORDER_SIZE)*2),
+                screenHeightInPixels() - (pixelsToDp(FRAME_BORDER_SIZE)*3));
+        cameraPreviewView.setLayoutParams(layoutParams);
+        cameraPreviewView.setX(pixelsToDp(FRAME_BORDER_SIZE));
+        cameraPreviewView.setY(pixelsToDp(FRAME_BORDER_SIZE));
+        layout.addView(cameraPreviewView);
+    }
 
-		Canvas canvas = new Canvas(bitmap);
-		Paint paint = new Paint();
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    private void createFrame() {
+        // Header
+        RelativeLayout.LayoutParams headerLayoutParams = new RelativeLayout.LayoutParams(
+                pixelsToDp(HEADER_HEIGHT), LayoutParams.MATCH_PARENT);
+        headerLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        headerLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        View headerView = new View(this);
+        headerView.setBackgroundColor(0xFF2D4452);
+        headerView.setLayoutParams(headerLayoutParams);
+        layout.addView(headerView);
 
-		if (!isDark) {
-			paint.setARGB(255, 255, 255, 255);
-		} else {
-			paint.setARGB(255, 0, 0, 0);
-		}
+        // Header Message
+        RelativeLayout.LayoutParams logoLayoutParams = new RelativeLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        logoLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        logoLayoutParams.rightMargin = pixelsToDp(6);
+        headerText = new VerticalTextView(this);
+        headerText.setGravity(Gravity.CENTER);
+        headerText.setText(getIntent().getStringExtra(DESCRIPTION));
+        headerText.setLayoutParams(logoLayoutParams);
+        layout.addView(headerText);
 
-		paint.setStyle(Style.FILL);
-		canvas.drawRoundRect(new RectF(0, 0, width, height), pixelsToDp(15),
-				pixelsToDp(15), paint);
+        // Left Pane
+        RelativeLayout.LayoutParams leftPaneLayoutParams = new RelativeLayout.LayoutParams(
+                screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT), pixelsToDp(FRAME_BORDER_SIZE));
+        View leftPaneView = new View(this);
+        leftPaneView.setBackgroundColor(0xFFB9C7D4);
+        leftPaneView.setLayoutParams(leftPaneLayoutParams);
+        layout.addView(leftPaneView);
 
-		paint.setARGB(255, 255, 0, 0);
-		// canvas.drawCircle(0, 0, 30, paint);
+        // Right Pane
+        RelativeLayout.LayoutParams rightPaneLayoutParams = new RelativeLayout.LayoutParams(
+                screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT), pixelsToDp(FRAME_BORDER_SIZE)*2);
+        rightPaneLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        View rightPaneView = new View(this);
+        rightPaneView.setBackgroundColor(0xFFB9C7D4);
+        rightPaneView.setLayoutParams(rightPaneLayoutParams);
+        layout.addView(rightPaneView);
 
-		return bitmap;
-	}
+        // Bottom Pane
+        RelativeLayout.LayoutParams bottomPaneLayoutParams = new RelativeLayout.LayoutParams(
+                pixelsToDp(FRAME_BORDER_SIZE), screenHeightInPixels());
+        View bottomPaneView = new View(this);
+        bottomPaneView.setBackgroundColor(0xFFB9C7D4);
+        bottomPaneView.setLayoutParams(bottomPaneLayoutParams);
+        layout.addView(bottomPaneView);
 
-	private void createCameraPreview() {
-		cameraPreviewView = new FrameLayout(this);
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		cameraPreviewView.setLayoutParams(layoutParams);
-		layout.addView(cameraPreviewView);
-	}
+        // Top Pane
+        RelativeLayout.LayoutParams topPaneLayoutParams = new RelativeLayout.LayoutParams(
+                pixelsToDp(FRAME_BORDER_SIZE), screenHeightInPixels());
+        topPaneLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        topPaneLayoutParams.rightMargin = pixelsToDp(HEADER_HEIGHT);
+        View topPaneView = new View(this);
+        topPaneView.setBackgroundColor(0xFFB9C7D4);
+        topPaneView.setLayoutParams(topPaneLayoutParams);
+        layout.addView(topPaneView);
 
-	private void createBackground() {
-		String filename = getIntent().getStringExtra(LOGO_FILENAME);
-		if (!filename.isEmpty()) {
-			layout.addView(new FrameBackgroundView(this));
+        // Front/Back Title
+        RelativeLayout.LayoutParams titleLayoutParams = new RelativeLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        titleLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        titleLayoutParams.rightMargin = pixelsToDp(HEADER_HEIGHT + 6);
+        titleLayoutParams.topMargin = pixelsToDp(FRAME_BORDER_SIZE);
+        titleText = new VerticalTextView(this);
+        titleText.setTextColor(Color.parseColor("#000000"));
+        titleText.setText(getIntent().getStringExtra(TITLE));
+        titleText.setLayoutParams(titleLayoutParams);
+        layout.addView(titleText);
 
-			logo = new ImageView(this);
-			logo.setScaleType(ScaleType.FIT_XY);
-			setBitmap(logo, filename);
-			RelativeLayout.LayoutParams layoutParams;
-			layoutParams = new RelativeLayout.LayoutParams(pixelsToDp(35),
-					pixelsToDp(260));
-			layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
-			layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			layoutParams.rightMargin = pixelsToDp(10);
+        // Cancel Button
+        RelativeLayout.LayoutParams cancelLayoutParams = new RelativeLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        cancelLayoutParams.leftMargin = pixelsToDp(FRAME_BORDER_SIZE);
+        cancelText = new TextView(this);
+        cancelText.setY(screenHeightInPixels() - (pixelsToDp(FRAME_BORDER_SIZE)*2) + pixelsToDp(6));
+        cancelText.setTextColor(Color.parseColor("#FFFFFF"));
+        cancelText.setTextSize(18);
+        cancelText.setText("Cancel");
+        cancelText.setLayoutParams(cancelLayoutParams);
+        cancelText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
+        layout.addView(cancelText);
 
-			logo.setLayoutParams(layoutParams);
-			layout.addView(logo);
+        CropMarks cropMarks = new CropMarks(this);
+        layout.addView(cropMarks);
 
-			TextView side = new TextView(this);
-			side.setText(getIntent().getStringExtra(TITLE));
-			side.setTextSize(24);
-			side.setEllipsize(null);
+        // Capture Button
+        /*RelativeLayout.LayoutParams captureLayoutParams = new RelativeLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        captureLayoutParams.leftMargin = pixelsToDp(FRAME_BORDER_SIZE) + pixelsToDp(75);
+        captureText = new TextView(this);
+        captureText.setY(screenHeightInPixels() - (pixelsToDp(FRAME_BORDER_SIZE)*2) + pixelsToDp(6));
+        captureText.setTextColor(Color.parseColor("#FFFFFF"));
+        captureText.setTextSize(18);
+        captureText.setText("Take Picture");
+        captureText.setLayoutParams(captureLayoutParams);
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setMessage("Please wait...");
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        captureText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!progress.isShowing()) {
+                    captureText.setOnClickListener(null);
+                    progress.show();
+                    takePictureWithAutoFocus();
+                }
+            }
+        });
+        layout.addView(captureText);
+        */
 
-			int color = Color.parseColor("#F5DC49");
-			side.setTextColor(color);
+        // How to add an image
+        /*
+        RelativeLayout.LayoutParams spinnerLayoutParams = new RelativeLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        spinner = new ImageView(this);
+        setBitmap(spinner, "www/img/logo.png");
+        spinner.setLayoutParams(spinnerLayoutParams);
+        layout.addView(spinner);
+        */
+    }
 
-			int leg = (screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT)) / 2;
+    public class CropMarks extends View {
+        public CropMarks(Context context) {
+            super(context);
+        }
 
-			int pivotX = 0;
-			int pivotY = leg;
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Paint paint = new Paint();
+            paint.setARGB(255, 255, 255, 255);
+            paint.setStyle(Style.STROKE);
+            paint.setStrokeWidth(1);
+            paint.setPathEffect(new DashPathEffect(new float[]{20, 20}, 0));
 
-			int posX = leg;
-			int posY = -leg + pixelsToDp(FRAME_BORDER_SIZE); // + pivotY;
+            int borderLength = pixelsToDp(30);
+            Point topLeftPts = new Point(pixelsToDp(FRAME_BORDER_SIZE), pixelsToDp(FRAME_BORDER_SIZE));
+            Point topRightPts = new Point(screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT) - pixelsToDp(FRAME_BORDER_SIZE),
+                    pixelsToDp(FRAME_BORDER_SIZE));
+            Point bottomLeftPts = new Point(pixelsToDp(FRAME_BORDER_SIZE), screenHeightInPixels() - pixelsToDp(FRAME_BORDER_SIZE)*2);
+            Point bottomRightPts = new Point(screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT) - pixelsToDp(FRAME_BORDER_SIZE),
+                    screenHeightInPixels() - pixelsToDp(FRAME_BORDER_SIZE)*2);
 
-			side.setPivotX(pivotX);
-			side.setPivotY(pivotY);
-			side.setX(posX);
-			side.setY(posY);
-			side.setRotation(90);
+            Path path = new Path();
+            path.moveTo(topLeftPts.x, topLeftPts.y + borderLength);
+            path.lineTo(topLeftPts.x, topLeftPts.y);
+            path.lineTo(topLeftPts.x + borderLength, topLeftPts.y);
 
-			layout.addView(side);
-		}
+            path.moveTo(topRightPts.x - borderLength, topRightPts.y);
+            path.lineTo(topRightPts.x, topRightPts.y);
+            path.lineTo(topRightPts.x, topRightPts.y + borderLength);
 
-	}
+            path.moveTo(bottomRightPts.x, bottomRightPts.y - borderLength);
+            path.lineTo(bottomRightPts.x, bottomRightPts.y);
+            path.lineTo(bottomRightPts.x - borderLength, bottomRightPts.y);
 
-	public class FrameBackgroundView extends View {
+            path.moveTo(bottomLeftPts.x + borderLength, bottomLeftPts.y);
+            path.lineTo(bottomLeftPts.x, bottomLeftPts.y);
+            path.lineTo(bottomLeftPts.x, bottomLeftPts.y - borderLength);
 
-		public FrameBackgroundView(Context context) {
-			super(context);
-		}
+            canvas.drawPath(path, paint);
+        }
+    }
 
-		@Override
-		public void draw(Canvas canvas) {
+    public class VerticalTextView extends TextView
+    {
+        final boolean topDown;
 
-			// Draw border
-			Path borderRect = new Path();
-			int gap = pixelsToDp(FRAME_BORDER_SIZE);
+        public VerticalTextView(Context context) {
+            super(context);
+            final int gravity = getGravity();
+            if ( Gravity.isVertical(gravity)
+                    && ( gravity & Gravity.VERTICAL_GRAVITY_MASK )
+                    == Gravity.BOTTOM )
+            {
+                setGravity(
+                        ( gravity & Gravity.HORIZONTAL_GRAVITY_MASK )
+                                | Gravity.TOP );
+                topDown = false;
+            }
+            else
+            {
+                topDown = true;
+            }
+        }
 
-			borderRect
-					.addRect(
-							pixelsToDp(FRAME_BORDER_SIZE) / 2,
-							pixelsToDp(FRAME_BORDER_SIZE) / 2,
-							(screenWidthInPixels() - pixelsToDp(FRAME_BORDER_SIZE) / 2)
-									- pixelsToDp(HEADER_HEIGHT),
-							(screenHeightInPixels() - pixelsToDp(FRAME_BORDER_SIZE) / 2)
-									- gap, Path.Direction.CW);
-			Paint borderPaint = new Paint();
-			borderPaint.setARGB(255, 185, 199, 212);
-			borderPaint.setAlpha(150);
-			borderPaint.setStyle(Paint.Style.STROKE);
-			borderPaint.setStrokeWidth(pixelsToDp(FRAME_BORDER_SIZE));
-			canvas.drawPath(borderRect, borderPaint);
+        @Override
+        protected void onMeasure(int widthMeasureSpec,
+                                 int heightMeasureSpec)
+        {
+            super.onMeasure(heightMeasureSpec, widthMeasureSpec);
+            setMeasuredDimension(getMeasuredHeight(), getMeasuredWidth());
+        }
 
-			Path buttonRect = new Path();
-			int x = 0;
-			int y = (screenHeightInPixels() - gap);
-			int width = screenWidthInPixels();
-			int height = screenHeightInPixels();
-			buttonRect.addRect(x, y, width, height, Path.Direction.CW);
-			Paint buttonPaint = new Paint();
-			buttonPaint.setARGB(255, 185, 199, 212);
-			buttonPaint.setAlpha(150);
-			buttonPaint.setStyle(Style.FILL);
+        @Override
+        protected void onDraw(Canvas canvas) {
+            TextPaint textPaint = getPaint();
+            textPaint.setColor( getCurrentTextColor() );
+            textPaint.drawableState = getDrawableState();
 
-			canvas.drawPath(buttonRect, buttonPaint);
+            canvas.save();
 
-			// Draw top header
-			Path headerRect = new Path();
-			headerRect.addRect(screenWidthInPixels()
-					- pixelsToDp(HEADER_HEIGHT), 0, screenWidthInPixels(),
-					screenHeightInPixels(), Path.Direction.CW);
+            if ( topDown )
+            {
+                canvas.translate( getWidth(), 0 );
+                canvas.rotate( 90 );
+            }
+            else
+            {
+                canvas.translate( 0, getHeight() );
+                canvas.rotate( -90 );
+            }
 
-			Paint headerPaint = new Paint();
-			headerPaint.setARGB(255, 45, 68, 82);
-			headerPaint.setAlpha(255);
-			headerPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-			canvas.drawPath(headerRect, headerPaint);
-		}
+            canvas.translate( getCompoundPaddingLeft(),
+                    getExtendedPaddingTop() );
 
-	}
+            getLayout().draw( canvas );
+            canvas.restore();
+        }
+    }
 
-	private void createCaptureButton(Bitmap buttonPicture) {
-		captureButton = new ImageButton(getApplicationContext());
-		captureButton.setImageBitmap(buttonPicture);
+	private void createCaptureButton() {
+        try {
+            InputStream inputStream = getAssets().open("www/img/buttonup.png");
+            lightButton = BitmapFactory.decodeStream(inputStream);
+            inputStream = getAssets().open("www/img/buttondown.png");
+            darkButton = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+        } catch (Exception e) {
+            LOG.e(ERROR_MESSAGE, "Button image(s) not found.");
+        }
+
+		captureButton = new ImageButton(this);
+		captureButton.setImageBitmap(lightButton);
 		captureButton.setBackgroundColor(Color.TRANSPARENT);
+        captureButton.setX((screenWidthInPixels() - lightButton.getWidth() - pixelsToDp(HEADER_HEIGHT)) / 2);
+        captureButton.setY(screenHeightInPixels() - lightButton.getHeight() - pixelsToDp(6));
 
-		RelativeLayout.LayoutParams layoutParams = null;
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setMessage("Please wait...");
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
 
-		layoutParams = new RelativeLayout.LayoutParams(
-				buttonPicture.getWidth(), buttonPicture.getHeight());
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		layoutParams.topMargin = (screenHeightInPixels() - pixelsToDp(FRAME_BORDER_SIZE))
-				- (buttonPicture.getHeight() / 2);
-		layoutParams.leftMargin = (screenWidthInPixels() - pixelsToDp(HEADER_HEIGHT))
-				/ 2 - buttonPicture.getWidth() / 2;
-
-		captureButton.setLayoutParams(layoutParams);
 		captureButton.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -293,12 +413,24 @@ public class CameraActivity extends Activity {
 		captureButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				takePictureWithAutoFocus();
+                if (!progress.isShowing()) {
+                    captureButton.setOnClickListener(null);
+                    progress.show();
+                    takePictureWithAutoFocus();
+                }
 			}
 		});
 
 		layout.addView(captureButton);
 	}
+
+    private void setCaptureButtonImageForEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            captureButton.setImageBitmap(darkButton);
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            captureButton.setImageBitmap(lightButton);
+        }
+    }
 
 	private int screenWidthInPixels() {
 		Point size = new Point();
@@ -312,21 +444,13 @@ public class CameraActivity extends Activity {
 		return size.y;
 	}
 
-	private void setCaptureButtonImageForEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			captureButton.setImageBitmap(darkPictureButton);
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
-			captureButton.setImageBitmap(lightPictureButton);
-		}
-	}
-
 	private void takePictureWithAutoFocus() {
 		if (getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_CAMERA_AUTOFOCUS)) {
 			camera.autoFocus(new AutoFocusCallback() {
 				@Override
 				public void onAutoFocus(boolean success, Camera camera) {
-					takePicture();
+                    takePicture();
 				}
 			});
 		} else {
@@ -354,7 +478,7 @@ public class CameraActivity extends Activity {
 			try {
 				Bitmap scaleBitmap = getScaledBitmap(jpegData[0]);
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
-				scaleBitmap.compress(Bitmap.CompressFormat.JPEG, 30, stream);
+				scaleBitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
 				byte[] byteArray = stream.toByteArray();
 
 				String imageData = Base64.encodeToString(byteArray,
@@ -368,7 +492,7 @@ public class CameraActivity extends Activity {
 			} catch (Exception e) {
 				finishWithError("Failed to take picture.");
 			}
-			return null;
+            return null;
 		}
 
 	}
@@ -438,10 +562,10 @@ public class CameraActivity extends Activity {
 		try {
 			InputStream imageStream = getAssets().open(imageName);
 			Bitmap bitmap = BitmapFactory.decodeStream(imageStream);
-			imageView.setImageBitmap(bitmap);
+            imageView.setImageBitmap(bitmap);
 			imageStream.close();
 		} catch (Exception e) {
-			Log.e(TAG, "Could load image", e);
+			Log.e(TAG, "Couldn't load image", e);
 		}
 	}
 
